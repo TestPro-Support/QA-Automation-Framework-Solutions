@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -52,9 +53,11 @@ public class BaseTest {
         driver.get(url);
     }
 
+
+    /* Legacy Setup
     public static WebDriver pickBrowser(String browser) throws MalformedURLException {
         DesiredCapabilities caps = new DesiredCapabilities();
-        String gridURL = "http://192.168.55.100:4444";//replace with your grid url
+        String gridURL = "http://192.168.254.101:4444/";//replace with your grid url
 
         //java -jar selenium-server-4.XX.0.jar standalone --selenium-manager true
 
@@ -87,4 +90,42 @@ public class BaseTest {
                 return driver = new ChromeDriver(chromeOptions);
         }
     }
+     */
+    public static WebDriver pickBrowser(String browser) throws MalformedURLException {
+
+        String gridURL = "http://192.168.254.101:4444/"; // Replace with your grid url
+
+        switch(browser.toLowerCase()) {
+            case "firefox": // gradle clean test -Dbrowser=firefox
+                WebDriverManager.firefoxdriver().setup();
+                return driver = new FirefoxDriver();
+
+            case "microsoftedge": // gradle clean test -Dbrowser=MicrosoftEdge
+                WebDriverManager.edgedriver().setup();
+                EdgeOptions edgeOptions = new EdgeOptions();
+                edgeOptions.addArguments("--remote-allow-origins=*");
+                return driver = new EdgeDriver(edgeOptions);
+
+            case "grid-edge": // gradle clean test -Dbrowser=grid-edge
+                EdgeOptions gridEdgeOptions = new EdgeOptions();
+                return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), gridEdgeOptions);
+
+            case "grid-firefox": // gradle clean test -Dbrowser=grid-firefox
+                FirefoxOptions gridFirefoxOptions = new FirefoxOptions();
+                return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), gridFirefoxOptions);
+
+            case "grid-chrome": // gradle clean test -Dbrowser=grid-chrome
+                ChromeOptions gridChromeOptions = new ChromeOptions();
+                return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), gridChromeOptions);
+
+            default: // gradle clean test (Defaults to local Chrome)
+                WebDriverManager.chromedriver().setup();
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.addArguments("--remote-allow-origins=*");
+                return driver = new ChromeDriver(chromeOptions);
+        }
+    }
+
+
+
 }
