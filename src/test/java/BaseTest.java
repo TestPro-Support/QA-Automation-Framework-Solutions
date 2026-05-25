@@ -55,11 +55,12 @@ public class BaseTest {
     // The tearDown() method is executed after each test method (@AfterMethod),
     // and its purpose is to close the WebDriver and remove its instance from ThreadLocal.
 
+/*
     public WebDriver lambdaTest() throws MalformedURLException {
 
-/*      Test Pro Instructor LambdaTest account
+     Test Pro Instructor LambdaTest account
 
-        1.) Navigate to https://accounts.lambdatest.com/login
+        1.) Navigate to https://www.testmuai.com/login/
 
         2.) Login using Google email
 
@@ -74,7 +75,7 @@ public class BaseTest {
 
 
        Configured for the Test Pro lambdatest account
-  */
+
         String hubURL = "https://hub.lambdatest.com/wd/hub";
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -82,7 +83,7 @@ public class BaseTest {
         capabilities.setCapability("browserVersion", "107.0");
         HashMap<String, Object> ltOptions = new HashMap<>();
         ltOptions.put("user", "lambdatest.testpro");
-        ltOptions.put("accessKey", "Op3WvHgSXBtuyR1TVO1wnBgA6qG34RvRcL9HWa8HLKzX4kSf5B");
+        ltOptions.put("accessKey", "");
         ltOptions.put("build", "Selenium 4");
         ltOptions.put("name", this.getClass().getName());
         ltOptions.put("platformName", "Windows 10");
@@ -92,7 +93,33 @@ public class BaseTest {
 
         return new RemoteWebDriver(new URL(hubURL), capabilities);
     }
-    // This lambdaTest() method returns an instance of WebDriver for remote testing using the LambdaTest service.
+    This lambdaTest() method returns an instance of WebDriver for remote testing using the LambdaTest service.
+*/
+
+    public WebDriver cloudBrowserSetup() throws MalformedURLException {
+
+        String hubURL = "https://hub.lambdatest.com/wd/hub";
+
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.setBrowserVersion("latest");
+        HashMap<String, Object> ltOptions = new HashMap<>();
+
+        ltOptions.put("user", "czar.testpro.io");
+        ltOptions.put("accessKey", "JvK4AZnDpz3R7lb10Mum1UiwT6g95uAoaeg9yAnY1wNABIF9iI");
+        ltOptions.put("build", "Selenium 4");
+        ltOptions.put("name", this.getClass().getName());
+        ltOptions.put("platformName", "Windows 11");
+        ltOptions.put("seCdp", true);
+        ltOptions.put("selenium_version", "4.0.0");
+        // TestMu AI specific capabilities
+        chromeOptions.setCapability("LT:Options", ltOptions);
+
+        return new RemoteWebDriver(new URL(hubURL), chromeOptions);
+    }
+
+
+
+    /* Legacy Cloud Setup
 
     public WebDriver pickBrowser(String browser) throws MalformedURLException {
         DesiredCapabilities caps = new DesiredCapabilities();
@@ -117,7 +144,41 @@ public class BaseTest {
                 caps.setCapability("browserName", "chrome");
                 return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), caps);
             case "cloud":
-                return lambdaTest();
+                return cloudBrowserSetup();
+            default:
+                WebDriverManager.chromedriver().setup();
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.addArguments("--remote-allow-origins=*");
+                return driver = new ChromeDriver(chromeOptions);
+        }
+    }
+*/
+    // This pickBrowser() method selects and returns an instance of WebDriver depending on the passed browser parameter.
+
+    public WebDriver pickBrowser(String browser) throws MalformedURLException {
+
+        String gridURL = "http://10.2.127.17:4444";
+
+        switch (browser.toLowerCase()) {
+            case "firefox":
+                WebDriverManager.firefoxdriver().setup();
+                return driver = new FirefoxDriver();
+            case "microsoftedge":
+                WebDriverManager.edgedriver().setup();
+                EdgeOptions edgeOptions = new EdgeOptions();
+                edgeOptions.addArguments("--remote-allow-origins=*");
+                return driver = new EdgeDriver(edgeOptions);
+            case "grid-firefox":
+                FirefoxOptions gridFirefoxOptions = new FirefoxOptions();
+                return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), gridFirefoxOptions);
+            case "grid-edge":
+                EdgeOptions gridEdgeOptions = new EdgeOptions();
+                return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), gridEdgeOptions);
+            case "grid-chrome":
+                ChromeOptions gridChromeOptions = new ChromeOptions();
+                return driver = new RemoteWebDriver(URI.create(gridURL).toURL(), gridChromeOptions);
+            case "cloud":
+                return cloudBrowserSetup();
             default:
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions chromeOptions = new ChromeOptions();
@@ -126,5 +187,4 @@ public class BaseTest {
         }
     }
 
-    // This pickBrowser() method selects and returns an instance of WebDriver depending on the passed browser parameter.
 }
